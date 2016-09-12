@@ -35,36 +35,37 @@ static struct device *test_driver_device = NULL;
 
 static int test_init(void)
 {
-	test_dev.dev_num = MKDEV(TEST_MAJOR, TEST_MINOR);
+    test_dev.dev_num = MKDEV(TEST_MAJOR, TEST_MINOR);
     test_dev.cdevp = cdev_alloc();
-	ret = register_chrdev_region(test_dev.dev_num, 1, "test_driver");
-	LOGD(LOG_TAG, "ret = %d\n", ret);
-	if (ret) {
-		LOGD(LOG_TAG, "ret = %d\n", ret);
-		return -EBUSY;
-	}
+    ret = register_chrdev_region(test_dev.dev_num, 1, "test_driver");
+    LOGD(LOG_TAG, "ret = %d\n", ret);
+    if (ret) {
+        LOGD(LOG_TAG, "ret = %d\n", ret);
+        return -EBUSY;
+    }
     cdev_init(test_dev.cdevp, &fops);
     cdev_add(test_dev.cdevp, test_dev.dev_num, 1);
-	test_driver_class = class_create(THIS_MODULE, "test_driver_class");
-	if (!test_driver_class) {
-		LOGD(LOG_TAG, "class_create failed!\n");
-		return -1;
-	}
-	test_driver_device = device_create(test_driver_class, NULL, test_dev.dev_num, 
+    test_driver_class = class_create(THIS_MODULE, "test_driver_class");
+    if (!test_driver_class) {
+        LOGD(LOG_TAG, "class_create failed!\n");
+        return -1;
+    }
+    test_driver_device = device_create(test_driver_class, NULL, test_dev.dev_num, 
                                         NULL, "test_dev");
-	if(!test_driver_device) {
-		LOGD(LOG_TAG, "device_create failed!\n");
-		return -1;
-	}
+    if(!test_driver_device) {
+        LOGD(LOG_TAG, "device_create failed!\n");
+        return -1;
+    }
 
 	return 0;
 }
 
 static void test_exit(void)
 {
-	unregister_chrdev_region(test_dev.dev_num, 1);
-	device_unregister(test_driver_device);
-	class_destroy(test_driver_class);
+    cdev_del(test_dev.cdevp);
+    unregister_chrdev_region(test_dev.dev_num, 1);
+    device_unregister(test_driver_device);
+    class_destroy(test_driver_class);
 }
 
 module_init(test_init);
