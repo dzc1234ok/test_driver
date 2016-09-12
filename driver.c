@@ -10,8 +10,11 @@
 
 #define LOG_TAG "test_driver "
 
+static int test_open(struct inode *, struct file *);
+
 #define TEST_MAJOR 100
 #define TEST_MINOR 0
+
 
 static int ret;
 
@@ -66,6 +69,12 @@ static void test_exit(void)
     unregister_chrdev_region(test_dev.dev_num, 1);
     device_unregister(test_driver_device);
     class_destroy(test_driver_class);
+}
+
+static int test_open(struct inode *ip, struct file *fp)
+{
+    
+    return 0;
 }
 
 module_init(test_init);
